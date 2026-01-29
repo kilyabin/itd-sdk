@@ -1,6 +1,7 @@
 from requests.exceptions import HTTPError
 
-from itd.users import get_user
+from itd.users import get_user, update_profile, follow, unfollow, get_followers, get_following
+from itd.etc import get_top_clans, get_who_to_follow, get_platform_status
 from itd.comments import get_comments, add_comment, delete_comment, like_comment, unlike_comment
 from itd.hashtags import get_hastags, get_posts_by_hastag
 from itd.notifications import get_notifications, mark_as_read, mark_all_as_read, get_unread_notifications_count
@@ -47,6 +48,39 @@ class Client:
     @refresh_on_error
     def get_me(self) -> dict:
         return self.get_user('me')
+
+    @refresh_on_error
+    def update_profile(self, username: str | None = None, display_name: str | None = None, bio: str | None = None) -> dict:
+        return update_profile(self.token, bio, display_name, username)
+
+    @refresh_on_error
+    def follow(self, username: str) -> dict:
+        return follow(self.token, username)
+
+    @refresh_on_error
+    def unfollow(self, username: str) -> dict:
+        return unfollow(self.token, username)
+
+    @refresh_on_error
+    def get_followers(self, username: str) -> dict:
+        return get_followers(self.token, username)
+
+    @refresh_on_error
+    def get_following(self, username: str) -> dict:
+        return get_following(self.token, username)
+
+
+    @refresh_on_error
+    def get_who_to_follow(self) -> dict:
+        return get_who_to_follow(self.token)
+
+    @refresh_on_error
+    def get_top_clans(self) -> dict:
+        return get_top_clans(self.token)
+
+    @refresh_on_error
+    def get_platform_status(self) -> dict:
+        return get_platform_status(self.token)
 
 
     @refresh_on_error
