@@ -28,7 +28,7 @@ def set_cookies(cookies: str):
         s.cookies.set(cookie.split('=')[0], cookie.split('=')[-1], path='/', domain='xn--d1ah4a.com.com')
 
 def refresh_auth(cookies: str):
-    print(s.cookies.get_dict())
+    print('refresh')
     res = s.post(f'https://xn--d1ah4a.com/api/v1/auth/refresh', timeout=10, headers={
         "Host": "xn--d1ah4a.com",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
@@ -51,5 +51,4 @@ def refresh_auth(cookies: str):
         "TE": "trailers",
     })
     res.raise_for_status()
-    print(res.text)
     return res.json()['accessToken']
