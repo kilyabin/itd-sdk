@@ -8,6 +8,7 @@ from itd.notifications import get_notifications, mark_as_read, mark_all_as_read,
 from itd.posts import create_post, get_posts, get_post, edit_post, delete_post, pin_post, repost, view_post
 from itd.reports import report
 from itd.search import search
+from itd.files import upload_file
 from itd.request import refresh_auth
 
 
@@ -50,8 +51,8 @@ class Client:
         return self.get_user('me')
 
     @refresh_on_error
-    def update_profile(self, username: str | None = None, display_name: str | None = None, bio: str | None = None) -> dict:
-        return update_profile(self.token, bio, display_name, username)
+    def update_profile(self, username: str | None = None, display_name: str | None = None, bio: str | None = None, banner_id: str | None = None) -> dict:
+        return update_profile(self.token, bio, display_name, username, banner_id)
 
     @refresh_on_error
     def follow(self, username: str) -> dict:
@@ -191,3 +192,8 @@ class Client:
     @refresh_on_error
     def search_hashtag(self, query: str, limit: int = 5):
         return search(self.token, query, 0, limit)
+
+
+    @refresh_on_error
+    def upload_file(self, name: str, data: bytes):
+        return upload_file(self.token, name, data)

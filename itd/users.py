@@ -4,7 +4,7 @@ from itd.request import fetch
 def get_user(token: str, username: str):
     return fetch(token, 'get', f'users/{username}')
 
-def update_profile(token: str, bio: str | None = None, display_name: str | None = None, username: str | None = None):
+def update_profile(token: str, bio: str | None = None, display_name: str | None = None, username: str | None = None, banner_id: str | None = None):
     data = {}
     if bio:
         data['bio'] = bio
@@ -12,6 +12,8 @@ def update_profile(token: str, bio: str | None = None, display_name: str | None 
         data['displayName'] = display_name
     if username:
         data['username'] = username
+    if banner_id:
+        data['bannerId'] = banner_id
     return fetch(token, 'put', 'users/me', data)
 
 def follow(token: str, username: str):

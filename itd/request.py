@@ -3,7 +3,7 @@ from requests import Session
 s = Session()
 
 
-def fetch(token: str, method: str, url: str, params: dict = {}, files: list = []):
+def fetch(token: str, method: str, url: str, params: dict = {}, files: dict[str, tuple[str, bytes]] = {}):
     base = f'https://xn--d1ah4a.com/api/{url}'
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -23,7 +23,7 @@ def fetch(token: str, method: str, url: str, params: dict = {}, files: list = []
     }
     method = method.lower()
     if method == "get":
-        res = s.get(base, timeout=20, params=params, headers=headers)
+        res = s.get(base, timeout=120 if files else 20, params=params, headers=headers)
     else:
         res = s.request(method.upper(), base, timeout=20, json=params, headers=headers, files=files)
 
