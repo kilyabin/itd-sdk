@@ -1,14 +1,17 @@
+from _io import BufferedReader
+from typing import cast
+
 from requests.exceptions import HTTPError
 
-from itd.users import get_user, update_profile, follow, unfollow, get_followers, get_following
-from itd.etc import get_top_clans, get_who_to_follow, get_platform_status
-from itd.comments import get_comments, add_comment, delete_comment, like_comment, unlike_comment
-from itd.hashtags import get_hastags, get_posts_by_hastag
-from itd.notifications import get_notifications, mark_as_read, mark_all_as_read, get_unread_notifications_count
-from itd.posts import create_post, get_posts, get_post, edit_post, delete_post, pin_post, repost, view_post
-from itd.reports import report
-from itd.search import search
-from itd.files import upload_file
+from itd.routes.users import get_user, update_profile, follow, unfollow, get_followers, get_following
+from itd.routes.etc import get_top_clans, get_who_to_follow, get_platform_status
+from itd.routes.comments import get_comments, add_comment, delete_comment, like_comment, unlike_comment
+from itd.routes.hashtags import get_hastags, get_posts_by_hastag
+from itd.routes.notifications import get_notifications, mark_as_read, mark_all_as_read, get_unread_notifications_count
+from itd.routes.posts import create_post, get_posts, get_post, edit_post, delete_post, pin_post, repost, view_post
+from itd.routes.reports import report
+from itd.routes.search import search
+from itd.routes.files import upload_file
 from itd.request import refresh_auth
 
 
@@ -195,5 +198,9 @@ class Client:
 
 
     @refresh_on_error
-    def upload_file(self, name: str, data: bytes):
+    def upload_file(self, name: str, data: BufferedReader):
         return upload_file(self.token, name, data)
+
+    def update_banner(self, name: str):
+        id = self.upload_file(name, cast(BufferedReader, open(name, 'rb')))['id']
+        return self.update_profile(banner_id=id)

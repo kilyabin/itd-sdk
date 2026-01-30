@@ -25,6 +25,7 @@ print(c.get_me())
 
 ---
 ### Скрипт на обновление имени
+Этот код сейчас работает на @itd_sdk (обновляется имя и пост)
 ```python
 from itd import ITDClient
 from time import sleep
@@ -36,7 +37,8 @@ c = ITDClient(None, '...')
 
 while True:
     c.update_profile(display_name=f'PYTHON ITD SDK | Рандом: {randint(1, 100)} | {datetime.now().strftime("%m.%d %H:%M:%S")}')
-    c.edit_post('82ea8a4f-a49e-485e-b0dc-94d7da9df990', f'рил ща {datetime.now(timezone.utc).isoformat(" ")} по UTC (обновляется каждую секунду)')
+    # редактирование поста
+    # c.edit_post('82ea8a4f-a49e-485e-b0dc-94d7da9df990', f'рил ща {datetime.now(timezone.utc).isoformat(" ")} по UTC (обновляется каждую секунду)')
     sleep(1)
 ```
 

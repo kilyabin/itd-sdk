@@ -1,9 +1,11 @@
+from _io import BufferedReader
+
 from requests import Session
 
 s = Session()
 
 
-def fetch(token: str, method: str, url: str, params: dict = {}, files: dict[str, tuple[str, bytes]] = {}):
+def fetch(token: str, method: str, url: str, params: dict = {}, files: dict[str, tuple[str, BufferedReader]] = {}):
     base = f'https://xn--d1ah4a.com/api/{url}'
     headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
