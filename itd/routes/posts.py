@@ -40,3 +40,6 @@ def repost(token: str, id: str, content: str | None = None):
 
 def view_post(token: str, id: str):
     return fetch(token, 'post', f'posts/{id}/view')
+
+def get_liked_posts(token: str, username: str, limit: int = 20, cursor: int = 0):
+    return fetch(token, 'get', f'posts/user/{username}/liked', {'limit': limit, 'cursor': cursor})

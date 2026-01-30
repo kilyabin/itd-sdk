@@ -16,6 +16,14 @@ def update_profile(token: str, bio: str | None = None, display_name: str | None 
         data['bannerId'] = banner_id
     return fetch(token, 'put', 'users/me', data)
 
+def update_privacy(token: str, wall_closed: bool = False, private: bool = False):
+    data = {}
+    if wall_closed:
+        data['wallClosed'] = wall_closed
+    if private:
+        data['isPrivate'] = private
+    return fetch(token, 'put', 'users/me/privacy', data)
+
 def follow(token: str, username: str):
     return fetch(token, 'post', f'users/{username}/follow')
 
