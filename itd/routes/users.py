@@ -35,3 +35,4 @@ def get_followers(token: str, username: str, limit: int = 30, page: int = 1):
 
 def get_following(token: str, username: str, limit: int = 30, page: int = 1):
     return fetch(token, 'get', f'users/{username}/following', {'limit': limit, 'page': page})
+

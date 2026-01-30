@@ -12,7 +12,8 @@ from itd.routes.posts import create_post, get_posts, get_post, edit_post, delete
 from itd.routes.reports import report
 from itd.routes.search import search
 from itd.routes.files import upload_file
-from itd.request import refresh_auth
+from itd.routes.auth import refresh_token, change_password, logout
+from itd.routes.verification import verificate, get_verification_status
 
 
 def refresh_on_error(func):
@@ -38,12 +39,27 @@ class Client:
         else:
             raise ValueError('Provide token or cookie')
 
-    @refresh_on_error
     def refresh_auth(self):
         if self.cookies:
-            self.token = refresh_auth(self.cookies)
+            self.token = refresh_token(self.cookies)
+            return self.token
         else:
-            print('no cookies!')
+            print('no cookies')
+
+    @refresh_on_error
+    def change_password(self, old: str, new: str):
+        if not self.cookies:
+            print('no cookies')
+            return
+        return change_password(self.cookies, self.token, old, new)
+
+    @refresh_on_error
+    def logout(self):
+        if not self.cookies:
+            print('no cookies')
+            return
+        return logout(self.cookies)
+
 
     @refresh_on_error
     def get_user(self, username: str) -> dict:
@@ -76,6 +92,15 @@ class Client:
     @refresh_on_error
     def get_following(self, username: str) -> dict:
         return get_following(self.token, username)
+
+
+    @refresh_on_error
+    def verificate(self, file_url: str):
+        return verificate(self.token, file_url)
+
+    @refresh_on_error
+    def get_verification_status(self):
+        return get_verification_status(self.token)
 
 
     @refresh_on_error

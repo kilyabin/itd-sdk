@@ -36,9 +36,8 @@ def set_cookies(cookies: str):
     for cookie in cookies.split('; '):
         s.cookies.set(cookie.split('=')[0], cookie.split('=')[-1], path='/', domain='xn--d1ah4a.com.com')
 
-def refresh_auth(cookies: str):
-    print('refresh')
-    res = s.post(f'https://xn--d1ah4a.com/api/v1/auth/refresh', timeout=10, headers={
+def auth_fetch(cookies: str, method: str, url: str, params: dict = {}, token: str | None = None):
+    headers = {
         "Host": "xn--d1ah4a.com",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0",
         "Accept": "*/*",
@@ -58,6 +57,13 @@ def refresh_auth(cookies: str):
         "Cache-Control": "no-cache",
         "Content-Length": "0",
         "TE": "trailers",
-    })
+    }
+    if token:
+        headers['Authorization'] = 'Bearer ' + token
+
+    if method == 'get':
+        res = s.get(f'https://xn--d1ah4a.com/api/{url}', timeout=20, params=params, headers=headers)
+    else:
+        res = s.request(method, f'https://xn--d1ah4a.com/api/{url}', timeout=20, json=params, headers=headers)
     res.raise_for_status()
-    return res.json()['accessToken']
+    return res.json()
