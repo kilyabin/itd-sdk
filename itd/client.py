@@ -81,7 +81,7 @@ class Client:
         """Смена пароля
 
         Args:
-            old (str): Страый пароль
+            old (str): Старый пароль
             new (str): Новый пароль
 
         Raises:
