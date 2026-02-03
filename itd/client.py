@@ -373,7 +373,6 @@ class Client:
         Args:
             post_id (str): UUID поста
             content (str): Содержание
-            reply_comment_id (UUID | None, optional): ID коммента для ответа. Defaults to None.
 
         Raises:
             ValidationError: Ошибка валидации
