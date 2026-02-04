@@ -2,7 +2,7 @@ from uuid import UUID
 from _io import BufferedReader
 from typing import cast
 
-from requests.exceptions import HTTPError, ConnectionError
+from requests.exceptions import ConnectionError, HTTPError
 
 from itd.routes.users import get_user, update_profile, follow, unfollow, get_followers, get_following, update_privacy
 from itd.routes.etc import get_top_clans, get_who_to_follow, get_platform_status
@@ -26,20 +26,18 @@ from itd.models.pagination import Pagination
 from itd.models.verification import Verification, VerificationStatus
 
 from itd.request import set_cookies
-from itd.exceptions import NoCookie, NoAuthData, SamePassword, InvalidOldPassword, NotFound, ValidationError, UserBanned, PendingRequestExists, Forbidden, UsernameTaken
+from itd.exceptions import NoCookie, NoAuthData, SamePassword, InvalidOldPassword, NotFound, ValidationError, UserBanned, PendingRequestExists, Forbidden, UsernameTaken, CantFollowYourself, Unauthorized
 
 
 def refresh_on_error(func):
     def wrapper(self, *args, **kwargs):
-        try:
-            return func(self, *args, **kwargs)
-        except HTTPError as e:
-            if '401' in str(e):
+        if self.cookies:
+            try:
+                return func(self, *args, **kwargs)
+            except (Unauthorized, ConnectionError, HTTPError):
                 self.refresh_auth()
                 return func(self, *args, **kwargs)
-            raise e
-        except ConnectionError:
-            self.refresh_auth()
+        else:
             return func(self, *args, **kwargs)
     return wrapper
 
@@ -203,6 +201,7 @@ class Client:
 
         Raises:
             NotFound: Пользователь не найден
+            CantFollowYourself: Невозможно подписаться на самого себе
 
         Returns:
             int: Число подписчиков после подписки
@@ -210,6 +209,8 @@ class Client:
         res = follow(self.token, username)
         if res.json().get('error', {}).get('code') == 'NOT_FOUND':
             raise NotFound('User')
+        if res.json().get('error', {}).get('code') == 'VALIDATION_ERROR' and res.status_code == 400:
+            raise CantFollowYourself()
         res.raise_for_status()
 
         return res.json()['followersCount']
