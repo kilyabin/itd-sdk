@@ -38,7 +38,7 @@ def fetch(token: str, method: str, url: str, params: dict = {}, files: dict[str,
         if res.json().get('error', {}).get('code') == 'UNAUTHORIZED':
             raise Unauthorized()
     except JSONDecodeError:
-        pass
+        pass # todo
 
     if not res.ok:
         print(res.text)

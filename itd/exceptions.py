@@ -71,5 +71,13 @@ class CantFollowYourself(Exception):
         return 'Cannot follow yourself'
 
 class Unauthorized(Exception):
-    def __str__(self) -> str:
+    def __str__(self):
         return 'Auth required - refresh token'
+
+class CantRepostYourPost(Exception):
+    def __str__(self):
+        return 'Cannot repost your own post'
+
+class AlreadyReposted(Exception):
+    def __str__(self):
+        return 'Post already reposted'
