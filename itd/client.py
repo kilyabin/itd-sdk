@@ -1,3 +1,4 @@
+from warnings import deprecated
 from uuid import UUID
 from _io import BufferedReader
 from typing import cast
@@ -7,14 +8,14 @@ from requests.exceptions import HTTPError, ConnectionError
 from itd.routes.users import get_user, update_profile, follow, unfollow, get_followers, get_following, update_privacy
 from itd.routes.etc import get_top_clans, get_who_to_follow, get_platform_status
 from itd.routes.comments import get_comments, add_comment, delete_comment, like_comment, unlike_comment, add_reply_comment
-from itd.routes.hashtags import get_hastags, get_posts_by_hastag
+from itd.routes.hashtags import get_hashtags, get_posts_by_hashtag
 from itd.routes.notifications import get_notifications, mark_as_read, mark_all_as_read, get_unread_notifications_count
 from itd.routes.posts import create_post, get_posts, get_post, edit_post, delete_post, pin_post, repost, view_post, get_liked_posts
 from itd.routes.reports import report
 from itd.routes.search import search
 from itd.routes.files import upload_file
 from itd.routes.auth import refresh_token, change_password, logout
-from itd.routes.verification import verificate, get_verification_status
+from itd.routes.verification import verify, get_verification_status
 
 from itd.models.comment import Comment
 from itd.models.notification import Notification
@@ -80,7 +81,7 @@ class Client:
         """Смена пароля
 
         Args:
-            old (str): Страый пароль
+            old (str): Старый пароль
             new (str): Новый пароль
 
         Raises:
@@ -280,7 +281,7 @@ class Client:
 
         return [UserFollower.model_validate(user) for user in res.json()['data']['users']], Pagination.model_validate(res.json()['data']['pagination'])
 
-
+    @deprecated("verificate устарел используйте verify")
     @refresh_on_error
     def verificate(self, file_url: str) -> Verification:
         """Отправить запрос на верификацию
@@ -294,7 +295,22 @@ class Client:
         Returns:
             Verification: Верификация
         """
-        res = verificate(self.token, file_url)
+        return self.verify(file_url)
+
+    @refresh_on_error
+    def verify(self, file_url: str) -> Verification:
+        """Отправить запрос на верификацию
+
+            Args:
+                file_url (str): Ссылка на видео
+
+            Raises:
+                PendingRequestExists: Запрос уже отправлен
+
+            Returns:
+                Verification: Верификация
+            """
+        res = verify(self.token, file_url)
         if res.json().get('error', {}).get('code') == 'PENDING_REQUEST_EXISTS':
             raise PendingRequestExists()
         res.raise_for_status()
@@ -313,10 +329,9 @@ class Client:
 
         return VerificationStatus.model_validate(res.json())
 
-
     @refresh_on_error
     def get_who_to_follow(self) -> list[UserWhoToFollow]:
-        """Получить список популярнык пользователей (кого читать)
+        """Получить список популярных пользователей (кого читать)
 
         Returns:
             list[UserWhoToFollow]: Список пользователей
@@ -492,7 +507,7 @@ class Client:
             raise Forbidden('delete comment')
         res.raise_for_status()
 
-
+    @deprecated("get_hastags устарел используйте get_hashtags")
     @refresh_on_error
     def get_hastags(self, limit: int = 10) -> list[Hashtag]:
         """Получить список популярных хэштэгов
@@ -503,7 +518,19 @@ class Client:
         Returns:
             list[Hashtag]: Список хэштэгов
         """
-        res = get_hastags(self.token, limit)
+        return self.get_hashtags(limit)
+
+    @refresh_on_error
+    def get_hashtags(self, limit: int = 10) -> list[Hashtag]:
+        """Получить список популярных хэштэгов
+
+        Args:
+            limit (int, optional): Лимит. Defaults to 10.
+
+        Returns:
+            list[Hashtag]: Список хэштэгов
+        """
+        res = get_hashtags(self.token, limit)
         res.raise_for_status()
 
         return [Hashtag.model_validate(hashtag) for hashtag in res.json()['data']['hashtags']]
@@ -522,7 +549,7 @@ class Client:
             list[Post]: Посты
             Pagination: Пагинация
         """
-        res = get_posts_by_hastag(self.token, hashtag, limit, cursor)
+        res = get_posts_by_hashtag(self.token, hashtag, limit, cursor)
         res.raise_for_status()
         data = res.json()['data']
 
