@@ -1,4 +1,4 @@
-# pyITDclient
+# itd-sdk
 Клиент ITD для python
 
 
