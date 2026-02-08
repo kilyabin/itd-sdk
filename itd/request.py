@@ -33,11 +33,13 @@ def fetch(token: str, method: str, url: str, params: dict = {}, files: dict[str,
         res = s.request(method.upper(), base, timeout=120 if files else 20, json=params, headers=headers, files=files)
 
     try:
+        if res.json().get('error') == 'Too Many Requests':
+            raise RateLimitExceeded(0)
         if res.json().get('error', {}).get('code') == 'RATE_LIMIT_EXCEEDED':
             raise RateLimitExceeded(res.json()['error'].get('retryAfter', 0))
         if res.json().get('error', {}).get('code') == 'UNAUTHORIZED':
             raise Unauthorized()
-    except JSONDecodeError:
+    except (JSONDecodeError, AttributeError):
         pass # todo
 
     if not res.ok:
@@ -79,10 +81,11 @@ def auth_fetch(cookies: str, method: str, url: str, params: dict = {}, token: st
     else:
         res = s.request(method, f'https://xn--d1ah4a.com/api/{url}', timeout=20, json=params, headers=headers)
 
-    # print(res.text)
     if res.text == 'UNAUTHORIZED':
         raise InvalidToken()
     try:
+        if res.json().get('error') == 'Too Many Requests':
+            raise RateLimitExceeded(0)
         if res.json().get('error', {}).get('code') == 'RATE_LIMIT_EXCEEDED':
             raise RateLimitExceeded(res.json()['error'].get('retryAfter', 0))
         if res.json().get('error', {}).get('code') in ('SESSION_NOT_FOUND', 'REFRESH_TOKEN_MISSING', 'SESSION_REVOKED', 'SESSION_EXPIRED'):

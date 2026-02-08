@@ -1,4 +1,4 @@
-from warnings import deprecated
+# from warnings import deprecated
 from uuid import UUID
 from _io import BufferedReader
 from typing import cast
@@ -36,7 +36,8 @@ from itd.request import set_cookies
 from itd.exceptions import (
     NoCookie, NoAuthData, SamePassword, InvalidOldPassword, NotFound, ValidationError, UserBanned,
     PendingRequestExists, Forbidden, UsernameTaken, CantFollowYourself, Unauthorized,
-    CantRepostYourPost, AlreadyReposted, AlreadyReported, TooLarge, PinNotOwned, NoContent
+    CantRepostYourPost, AlreadyReposted, AlreadyReported, TooLarge, PinNotOwned, NoContent,
+    AlreadyFollowing
 )
 
 
@@ -220,6 +221,8 @@ class Client:
         res = follow(self.token, username)
         if res.json().get('error', {}).get('code') == 'NOT_FOUND':
             raise NotFound('User')
+        if res.json().get('error', {}).get('code') == 'CONFLICT':
+            raise AlreadyFollowing()
         if res.json().get('error', {}).get('code') == 'VALIDATION_ERROR' and res.status_code == 400:
             raise CantFollowYourself()
         res.raise_for_status()
@@ -292,21 +295,6 @@ class Client:
 
         return [UserFollower.model_validate(user) for user in res.json()['data']['users']], Pagination.model_validate(res.json()['data']['pagination'])
 
-    @deprecated("verificate устарел используйте verify")
-    @refresh_on_error
-    def verificate(self, file_url: str) -> Verification:
-        """Отправить запрос на верификацию
-
-        Args:
-            file_url (str): Ссылка на видео
-
-        Raises:
-            PendingRequestExists: Запрос уже отправлен
-
-        Returns:
-            Verification: Верификация
-        """
-        return self.verify(file_url)
 
     @refresh_on_error
     def verify(self, file_url: str) -> Verification:
@@ -545,19 +533,6 @@ class Client:
         if res.json().get('error', {}).get('code') == 'FORBIDDEN':
             raise Forbidden('delete comment')
         res.raise_for_status()
-
-    @deprecated("get_hastags устарел используйте get_hashtags")
-    @refresh_on_error
-    def get_hastags(self, limit: int = 10) -> list[Hashtag]:
-        """Получить список популярных хэштэгов
-
-        Args:
-            limit (int, optional): Лимит. Defaults to 10.
-
-        Returns:
-            list[Hashtag]: Список хэштэгов
-        """
-        return self.get_hashtags(limit)
 
     @refresh_on_error
     def get_hashtags(self, limit: int = 10) -> list[Hashtag]:

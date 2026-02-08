@@ -103,3 +103,7 @@ class PinNotOwned(Exception):
 class NoContent(Exception):
     def __str__(self) -> str:
         return 'Content or attachments required'
+
+class AlreadyFollowing(Exception):
+    def __str__(self) -> str:
+        return 'Already following user'
